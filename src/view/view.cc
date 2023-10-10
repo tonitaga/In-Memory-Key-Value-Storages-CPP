@@ -39,7 +39,7 @@ namespace ttl {
         std::cout << red   << "---------------------------------" << reset << "\n\n";
     }
 
-    void HashTableView::Start() {
+    void HashTableView::Show() {
         DisplayCommands();
 
         std::string line;
@@ -58,7 +58,7 @@ namespace ttl {
         }
     }
 
-    void RedBlackTreeView::Start() {
+    void RedBlackTreeView::Show() {
         DisplayCommands();
 
         std::string line;

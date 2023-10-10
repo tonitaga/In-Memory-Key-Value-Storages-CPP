@@ -9,7 +9,7 @@ namespace ttl {
         virtual ~IView() = default;
 
     public:
-        virtual void Start() = 0;
+        virtual void Show() = 0;
 
     protected:
         void DisplayCommands();
@@ -20,7 +20,7 @@ namespace ttl {
         ~HashTableView() override = default;
 
     public:
-        void Start() override;
+        void Show() override;
     };
 
     class RedBlackTreeView final : public IView {
@@ -28,7 +28,7 @@ namespace ttl {
         ~RedBlackTreeView() override = default;
 
     public:
-        void Start() override;
+        void Show() override;
     };
 
     std::unique_ptr<IView> getView(int choice);

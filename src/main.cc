@@ -6,6 +6,7 @@ int main() {
     auto view = getView(
             getStorageChoiceInput());
 
-    view->Start();
+    if (view) view->Show();
+
     return 0;
 }
