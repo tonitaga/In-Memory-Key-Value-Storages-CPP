@@ -10,7 +10,7 @@ namespace ttl {
         int year = -1;
         std::string city;
         int coins = -1;
-        std::size_t time;
+        int time = -1;
     };
 
     [[nodiscard]] inline bool operator==(const Student &lhs, const Student &rhs) {

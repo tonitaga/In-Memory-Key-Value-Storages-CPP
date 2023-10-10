@@ -207,10 +207,16 @@ namespace ttl {
                 return;
             }
 
+            int count = 0;
             for (const auto &[key, mapped] : storage) {
-                if (mapped == mapped_)
+                if (mapped == mapped_) {
                     std::cout << green << "> " << key << reset << std::endl;
+                    ++count;
+                }
             }
+
+            if (count == 0)
+                std::cout << red << "> (null)" << reset << std::endl;
         }
 
     private:

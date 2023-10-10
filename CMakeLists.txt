@@ -8,7 +8,9 @@ include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/src/model/command
         ${CMAKE_CURRENT_SOURCE_DIR}/src/model/student
         ${CMAKE_CURRENT_SOURCE_DIR}/src/extern
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/view
 )
 
 add_executable(Transactions_Library_CPP
-        src/main.cc)
+        src/main.cc
+        src/view/view.cc)
