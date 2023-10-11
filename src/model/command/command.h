@@ -31,7 +31,11 @@ namespace ttl {
             : key_(std::move(key)), mapped_(std::move(mapped)) {}
 
         void Execute(AssociativeContainer &storage) override {
-            storage[key_] = std::move(mapped_);
+            if constexpr(std::is_same_v<mapped_type, Student>)
+                if (mapped_.time != -1)
+                    mapped_.life_begin = std::chrono::system_clock::now();
+
+            storage[std::move(key_)] = std::move(mapped_);
             std::cout << green << "> OK" << reset << std::endl;
         }
 
@@ -55,6 +59,17 @@ namespace ttl {
                 return;
             }
 
+            using namespace std::chrono;
+            mapped_type &mapped = storage[key_];
+
+            if constexpr(std::is_same_v<mapped_type, Student>) {
+                auto time_delta = duration_cast<milliseconds>(system_clock::now() - mapped.life_begin).count();
+                if (mapped.time != -1 and time_delta > mapped.time * 1000) {
+                    storage.erase(storage.find(key_));
+                    std::cout << red << "> (null)" << reset << std::endl;
+                    return;
+                }
+            }
             std::cout << green << "> " << storage[key_] << reset << std::endl;
         }
 
@@ -122,6 +137,11 @@ namespace ttl {
                 return;
             }
 
+            using namespace std::chrono;
+            if constexpr (std::is_same_v<mapped_type, Student>)
+                if (mapped_.time != -1)
+                    mapped_.life_begin = system_clock::now();
+
             storage[key_] = std::move(mapped_);
             std::cout << green << "> OK" << reset << std::endl;
         }
@@ -185,7 +205,29 @@ namespace ttl {
             : key_(std::move(key)) {}
 
         void Execute(AssociativeContainer &storage) override {
-            std::cout << "TTL command executed!" << std::endl;
+            if (storage.find(key_) == storage.end()) {
+                std::cout << red << "> (null)" << reset << std::endl;
+                return;
+            }
+
+            if constexpr (std::is_same_v<mapped_type, Student>) {
+                mapped_type &mapped = storage[key_];
+                if (mapped.time == -1) {
+                    std::cout << green << "> (inf)" << reset << std::endl;
+                    return;
+                }
+
+                using namespace std::chrono;
+                auto delta = duration_cast<seconds>(system_clock::now() - mapped.life_begin).count();
+
+                if (delta > mapped.time) {
+                    storage.erase(storage.find(key_));
+                    std::cout << red << "> (null)" << reset << std::endl;
+                    return;
+                }
+
+                std::cout << green << "> " << mapped.time - delta << reset << std::endl;
+            }
         }
 
     private:
@@ -208,7 +250,13 @@ namespace ttl {
             }
 
             int count = 0;
+
+            using namespace std::chrono;
             for (const auto &[key, mapped] : storage) {
+                if constexpr (std::is_same_v<mapped_type, Student>)
+                    if (mapped.time != -1 and duration_cast<milliseconds>(system_clock::now() - mapped.life_begin).count() > mapped.time * 1000)
+                        continue;
+
                 if (mapped == mapped_) {
                     std::cout << green << "> " << key << reset << std::endl;
                     ++count;
@@ -269,7 +317,18 @@ namespace ttl {
 
                 ss.clear();
                 ss.str(line);
-                ss >> key >> mapped;
+                ss >> key;
+
+                try {
+                    ss >> mapped;
+                } catch (std::exception &) {
+                    continue;
+                }
+
+                using namespace std::chrono;
+                if constexpr (std::is_same_v<mapped_type, Student>)
+                    if (mapped.time != -1)
+                        mapped.life_begin = system_clock::now();
 
                 storage[std::move(key)] = std::move(mapped);
                 ++read_count;

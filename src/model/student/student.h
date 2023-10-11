@@ -2,8 +2,11 @@
 #define TRANSACTIONS_LIBRARY_CPP_STUDENT_H
 
 #include <string>
+#include <chrono>
 
 namespace ttl {
+    using time_point_t = decltype(std::chrono::system_clock::now());
+
     struct Student {
         std::string surname;
         std::string name;
@@ -11,9 +14,10 @@ namespace ttl {
         std::string city;
         int coins = -1;
         int time = -1;
+        time_point_t life_begin;
     };
 
-    [[nodiscard]] inline bool operator==(const Student &lhs, const Student &rhs) {
+    [[nodiscard]] bool operator==(const Student &lhs, const Student &rhs) {
         if (lhs.surname != rhs.surname and rhs.surname != "-")
             return false;
         if (lhs.name != rhs.name and rhs.name != "-")
@@ -30,9 +34,9 @@ namespace ttl {
     std::istream &operator>>(std::istream &in, Student &rhs) {
         std::string surname, name, city;
         std::string year, coins;
-        std::string ex;
+        std::string ex, time;
 
-        in >> surname >> name >> year >> city >> coins >> ex;
+        in >> surname >> name >> year >> city >> coins >> ex >> time;
         rhs.surname = std::move(surname);
         rhs.name = std::move(name);
         rhs.city = std::move(city);
@@ -56,9 +60,6 @@ namespace ttl {
         }
 
         if (ex == "EX") {
-            std::string time;
-            std::cin >> time;
-
             try {
                 rhs.time = std::stoi(time);
             } catch(std::exception &e) {
@@ -71,7 +72,14 @@ namespace ttl {
     }
 
     std::ostream &operator<<(std::ostream &out, const Student &rhs) {
+        using namespace std::chrono;
         out << rhs.surname << ' ' << rhs.name << ' ' << rhs.year << ' ' << rhs.city << ' ' << rhs.coins;
+        if (rhs.time == -1)
+            return out;
+
+        out << " EX ";
+        auto delta = duration_cast<seconds>(system_clock::now() - rhs.life_begin).count();
+        out << rhs.time - delta;
         return out;
     }
 }
