@@ -186,7 +186,7 @@ namespace ttl {
 
             mapped_type saved = std::move(storage[key1_]);
             storage.erase(storage.find(key1_));
-            storage[key2_] = std::move(saved);
+            storage.insert({std::move(key2_), std::move(saved)});
             std::cout << green << "> OK" << reset << std::endl;
         }
 

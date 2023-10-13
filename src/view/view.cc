@@ -3,8 +3,8 @@
 #include "command_factory.h"
 #include "student.h"
 
-#include <map>
-#include <unordered_map>
+#include "map.h"
+#include "unordered_map.h"
 
 namespace ttl {
     void IView::DisplayCommands() {
@@ -43,7 +43,7 @@ namespace ttl {
         DisplayCommands();
 
         std::string line;
-        std::unordered_map<std::string, Student> map;
+        ttl::UnorderedMap<std::string, Student> map;
         while (true) {
             std::getline(std::cin, line, '\n');
 
@@ -62,7 +62,7 @@ namespace ttl {
         DisplayCommands();
 
         std::string line;
-        std::map<std::string, Student> map;
+        ttl::Map<std::string, Student> map;
 
         while (true) {
             std::getline(std::cin, line, '\n');

@@ -1,4 +1,7 @@
 #include "view.h"
+#include "map.h"
+#include "student.h"
+#include "unordered_map.h"
 
 int main() {
     using namespace ttl;
@@ -7,6 +10,5 @@ int main() {
             getStorageChoiceInput());
 
     if (view) view->Show();
-
     return 0;
 }
