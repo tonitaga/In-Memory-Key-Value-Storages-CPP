@@ -1,89 +1,94 @@
-#ifndef TRANSACTIONS_LIBRARY_CPP_MAP_NORMAL_ITERATOR_H
-#define TRANSACTIONS_LIBRARY_CPP_MAP_NORMAL_ITERATOR_H
+#ifndef TRANSACTIONS_LIBRARY_CPP_map_NORMAL_ITERATOR_H
+#define TRANSACTIONS_LIBRARY_CPP_map_NORMAL_ITERATOR_H
+
+#include <iterator>
 
 namespace ttl {
     template <typename Node>
-    class MapNormalIterator {
+    class map_normal_iterator {
     public:
+        using iterator_category = std::bidirectional_iterator_tag;
         using node_type = Node;
         using node_pointer = node_type *;
-        using difference_type = std::ptrdiff_t;
         using value_type = typename Node::value_type;
         using reference = value_type &;
         using pointer = value_type *;
 
     public:
-        explicit MapNormalIterator(node_pointer current) noexcept : current_(current) {};
+        map_normal_iterator(node_pointer current, node_pointer null, node_pointer root) noexcept
+            : current_(current), null_(null), root_(root) {};
 
     private:
         node_pointer current_;
-
-        bool is_nil(const node_pointer &p) { return p->right == p; }
+        node_pointer null_;
+        node_pointer root_;
 
     public:
-        reference operator*() { return current_->key_value; }
-        const pointer operator->() { return &(current_->key_value); }
+        reference operator*() { return current_->kv; }
+        pointer operator->() { return &(current_->kv); }
 
-        MapNormalIterator &operator++() {
-            if (is_nil(current_)) {
-                current_ = current_->parent;
-                while (!is_nil(current_->left))
-                    current_ = current_->left;
-            } else if (!is_nil(current_->right)) {
+        map_normal_iterator &operator++() {
+            if (current_ == null_)
+                current_ = null_;
+            else if (current_->right != null_) {
                 current_ = current_->right;
-                while (!is_nil(current_->left))
+                while (current_->left and current_->left != null_)
                     current_ = current_->left;
             } else {
-                while (!is_nil(current_) and current_->parent->left != current_)
+                while (current_->is_right_child())
                     current_ = current_->parent;
-                if (!is_nil(current_))
+
+                if (current_ != root_)
                     current_ = current_->parent;
+                else
+                    current_ = null_;
             }
             return *this;
         }
 
-        MapNormalIterator operator++(int) {
-            MapNormalIterator tmp(*this);
+        map_normal_iterator operator++(int) {
+            map_normal_iterator tmp(*this);
             ++(*this);
             return tmp;
         }
 
-        MapNormalIterator &operator--() {
-            if (is_nil(current_)) {
-                current_ = current_->parent;
-                while (!is_nil(current_->right))
-                    current_ = current_->right;
-            } else if (!is_nil(current_->left)) {
+        map_normal_iterator &operator--() {
+            if (current_ == null_)
+                current_ = null_;
+            else if (current_->left != null_) {
                 current_ = current_->left;
-                while (!is_nil(current_->right))
+                while (current_->right and current_->right != null_)
                     current_ = current_->right;
             } else {
-                while (!is_nil(current_) and current_->parent->right != current_)
+                while (current_->is_left_child())
                     current_ = current_->parent;
-                if (!is_nil(current_))
+
+                if (current_ != root_)
                     current_ = current_->parent;
+                else
+                    current_ = null_;
             }
             return *this;
         }
 
         node_pointer node() const noexcept { return current_; }
 
-        MapNormalIterator operator--(int) {
-            MapNormalIterator tmp(*this);
+        map_normal_iterator operator--(int) {
+            map_normal_iterator tmp(*this);
             --(*this);
             return tmp;
         }
     };
 
     template <typename Node>
-    [[nodiscard]] inline bool operator==(const MapNormalIterator<Node> &lhs, const MapNormalIterator<Node> &rhs) {
+    [[nodiscard]] inline bool operator==(const map_normal_iterator<Node> &lhs, const map_normal_iterator<Node> &rhs) {
         return lhs.node() == rhs.node();
     }
 
     template <typename Node>
-    [[nodiscard]] inline bool operator!=(const MapNormalIterator<Node> &lhs, const MapNormalIterator<Node> &rhs) {
+    [[nodiscard]] inline bool operator!=(const map_normal_iterator<Node> &lhs, const map_normal_iterator<Node> &rhs) {
         return lhs.node() != rhs.node();
     }
 }
 
-#endif //TRANSACTIONS_LIBRARY_CPP_MAP_NORMAL_ITERATOR_H
+#endif //TRANSACTIONS_LIBRARY_CPP_map_NORMAL_ITERATOR_H

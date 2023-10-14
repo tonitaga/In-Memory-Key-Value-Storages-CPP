@@ -11,7 +11,7 @@ namespace ttl {
     class CommandFactory {
     public:
         template<typename AssociativeContainer>
-        static std::unique_ptr<ICommand<AssociativeContainer>> getCommand(const std::string &line, AssociativeContainer) {
+        static std::unique_ptr<ICommand<AssociativeContainer>> getCommand(const std::string &line, const AssociativeContainer &) {
             std::string command;
             std::stringstream ss(line);
 

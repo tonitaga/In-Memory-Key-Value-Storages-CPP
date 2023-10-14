@@ -1,12 +1,11 @@
 #ifndef TRANSACTIONS_LIBRARY_CPP_HASH_TABLE_H
 #define TRANSACTIONS_LIBRARY_CPP_HASH_TABLE_H
 
-#include <iostream>
 #include <vector>
 #include <forward_list>
 
-#include "unordered_map_normal_iterator.h"
 #include "unordered_map_size.h"
+#include "unordered_map_normal_iterator.h"
 
 namespace ttl {
     template <typename Key, typename Value, typename Hash = std::hash<Key>>

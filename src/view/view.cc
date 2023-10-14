@@ -62,7 +62,7 @@ namespace ttl {
         DisplayCommands();
 
         std::string line;
-        ttl::Map<std::string, Student> map;
+        ttl::map<std::string, Student> map;
 
         while (true) {
             std::getline(std::cin, line, '\n');
@@ -97,7 +97,7 @@ namespace ttl {
         compare_command = static_cast<CompareCommands>(tmp);
 
         ttl::unordered_map<std::string, Student> map_unordered;
-        ttl::Map<std::string, Student> map_rbtree;
+        ttl::map<std::string, Student> map_rbtree;
 
         while (compare_command != kExit) {
             /* ... */
