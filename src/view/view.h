@@ -43,6 +43,17 @@ namespace ttl {
         void DisplayCommands() override;
     };
 
+    class GeneratorKeyValueView final : public IView {
+    public:
+        ~GeneratorKeyValueView() override = default;
+
+    public:
+        void Show() override;
+
+    private:
+        void DisplayCommands() override;
+    };
+
     std::unique_ptr<IView> getView(int choice);
 
     int getStorageChoiceInput();

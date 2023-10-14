@@ -45,7 +45,7 @@ namespace ttl {
 
             for (auto b_it = bucket.begin(), b_end = bucket.end(); b_it != b_end; ++b_it)
                 if (b_it->first == kv.first)
-                    return std::make_pair(iterator(table_it, b_it), false);
+                    return std::make_pair(iterator(table_it, b_it, map_.end()), false);
 
             size_++;
             update_alpha();
@@ -53,7 +53,7 @@ namespace ttl {
             hashed_key_mod = hashed_key % map_table_size::size(size_index_);
             map_[hashed_key_mod].emplace_front(kv);
 
-            return std::make_pair(iterator(map_.begin() + hashed_key_mod, map_[hashed_key_mod].begin()), true);
+            return std::make_pair(iterator(map_.begin() + hashed_key_mod, map_[hashed_key_mod].begin(), map_.end()), true);
         }
 
         std::pair<iterator, bool> insert(std::pair<key_type, mapped_type> &&kv) {
@@ -68,7 +68,7 @@ namespace ttl {
 
             for (auto b_it = bucket.begin(), b_end = bucket.end(); b_it != b_end; ++b_it)
                 if (b_it->first == kv.first)
-                    return std::make_pair(iterator(table_it, b_it), false);
+                    return std::make_pair(iterator(table_it, b_it, map_.end()), false);
 
             size_++;
             update_alpha();
@@ -76,7 +76,7 @@ namespace ttl {
             hashed_key_mod = hashed_key % map_table_size::size(size_index_);
             map_[hashed_key_mod].emplace_front(std::move(kv));
 
-            return std::make_pair(iterator(map_.begin() + hashed_key_mod, map_[hashed_key_mod].begin()), true);
+            return std::make_pair(iterator(map_.begin() + hashed_key_mod, map_[hashed_key_mod].begin(), map_.end()), true);
         }
 
         mapped_type &operator[](const key_type &key) {
@@ -94,13 +94,13 @@ namespace ttl {
         iterator begin() noexcept {
             for (auto tit = map_.begin(), tend = map_.end(); tit != tend; ++tit)
                 for (auto bit = tit->begin(), bend = tit->end(); bit != bend; ++bit)
-                    return iterator(tit, bit);
+                    return iterator(tit, bit, map_.end());
             return end();
         }
         const_iterator begin() const noexcept {
             for (auto tit = map_.cbegin(), tend = map_.cend(); tit != tend; ++tit)
                 for (auto bit = tit->cbegin(), bend = tit->cend(); bit != bend; ++bit)
-                    return const_iterator(tit, bit);
+                    return const_iterator(tit, bit, map_.end());
             return end();
         }
 
@@ -122,7 +122,7 @@ namespace ttl {
 
             for (auto b_it = bucket.begin(), b_end = bucket.end(); b_it != b_end; ++b_it)
                 if (b_it->first == key)
-                    return iterator(table_it, b_it);
+                    return iterator(table_it, b_it, map_.end());
 
             return end();
         }
@@ -135,7 +135,7 @@ namespace ttl {
 
             for (auto b_it = bucket.begin(), b_end = bucket.end(); b_it != b_end; ++b_it)
                 if (b_it->first == std::move(key))
-                    return iterator(table_it, b_it);
+                    return iterator(table_it, b_it, map_.end());
 
             return end();
         }
@@ -191,18 +191,17 @@ namespace ttl {
         hash_type hash_;
 
         [[nodiscard]] double get_alpha() const { return size_ / static_cast<double>(map_table_size::size(size_index_)); }
-        [[nodiscard]] double get_resize_alpha() const { return 0.75; }
+        [[nodiscard]] double get_resize_alpha() const { return 4; }
 
         void resize() {
             size_type new_map_size = map_table_size::size(++size_index_);
             map_type new_map(new_map_size);
 
-            for (auto &&bucket : map_) {
-                if (bucket.empty())
-                    continue;
-
-                size_type key_hash = hash_(std::move(bucket.front().first)) % new_map_size;
-                new_map[key_hash] = std::move(bucket);
+            for (auto &bucket : map_) {
+                for (auto &&[key, value]: bucket) {
+                    std::size_t key_hash_mod = hash_(key) % new_map_size;
+                    new_map[key_hash_mod].emplace_front(std::move(key), std::move(value));
+                }
             }
 
             map_ = std::move(new_map);

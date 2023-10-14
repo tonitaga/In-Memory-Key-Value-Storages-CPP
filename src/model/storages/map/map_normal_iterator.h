@@ -78,17 +78,15 @@ namespace ttl {
             --(*this);
             return tmp;
         }
+
+        bool operator==(const map_normal_iterator &other) const {
+            return current_ == other.current_;
+        }
+
+        bool operator!=(const map_normal_iterator &other) const {
+            return current_ != other.current_;
+        }
     };
-
-    template <typename Node>
-    [[nodiscard]] inline bool operator==(const map_normal_iterator<Node> &lhs, const map_normal_iterator<Node> &rhs) {
-        return lhs.node() == rhs.node();
-    }
-
-    template <typename Node>
-    [[nodiscard]] inline bool operator!=(const map_normal_iterator<Node> &lhs, const map_normal_iterator<Node> &rhs) {
-        return lhs.node() != rhs.node();
-    }
 }
 
 #endif //TRANSACTIONS_LIBRARY_CPP_map_NORMAL_ITERATOR_H

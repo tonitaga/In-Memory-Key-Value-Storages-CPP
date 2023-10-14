@@ -12,7 +12,7 @@ namespace ttl {
         using reference = typename BucketIterator::reference;
 
         explicit unordered_map_normal_iterator(TableIterator it) : table_(it) {}
-        unordered_map_normal_iterator(TableIterator main, BucketIterator bucket) : table_(main), bucket_(bucket) {};
+        unordered_map_normal_iterator(TableIterator main, BucketIterator bucket, TableIterator end) : table_(main), bucket_(bucket), end_(end) {};
 
         reference operator*() const {
             return *bucket_;
@@ -24,12 +24,17 @@ namespace ttl {
 
         unordered_map_normal_iterator &operator++() {
             ++bucket_;
-            if (bucket_ != table_->end())
+            if (bucket_ != table_->end()) {
                 return *this;
+            }
 
             ++table_;
-            while (table_->empty())
-                ++table_;
+            while (table_->empty()) {
+                if (table_ != end_)
+                    ++table_;
+                else
+                    return *this;
+            }
 
             bucket_ = table_->begin();
             return *this;
@@ -52,6 +57,7 @@ namespace ttl {
     private:
         TableIterator table_;
         BucketIterator bucket_;
+        TableIterator end_;
     };
 }
 

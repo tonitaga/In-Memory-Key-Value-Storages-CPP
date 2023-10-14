@@ -48,6 +48,7 @@ namespace ttl {
 
         std::string line;
         ttl::unordered_map<std::string, Student> map;
+
         while (true) {
             std::getline(std::cin, line, '\n');
 
@@ -132,6 +133,53 @@ namespace ttl {
         std::cout << red   << "---------------------------------" << reset << "\n\n";
     }
 
+    void GeneratorKeyValueView::Show() {
+        DisplayCommands();
+
+        std::string command, path;
+        std::cout << "> ";
+        std::cin >> command;
+
+        int count;
+        while (command != "EXIT") {
+            if (command != "GENERATE") {
+                std::cout << "> ";
+                std::cin >> command;
+                continue;
+            }
+
+            std::cout << green << "Enter save file path\n" << reset << "> ";
+            std::cin >> path;
+            std::cout << green << "Enter generation size\n" << reset << "> ";
+            std::cin >> count;
+
+            std::ofstream file(path);
+            if (file.is_open()) {
+                if (count > 100000) {
+                    std::cout << red << "Sorry, but your generation size is too big, we cut it to 100000\n" << reset;
+                }
+
+                for (int i = 1; i != count; ++i) {
+                    file << i << " tonitaga manhunte 21 transactions-a6 0" << '\n';
+                }
+
+                std::cout << green << "Filed saved successfully!\n" << reset;
+                file.close();
+            }
+
+            std::cout << "> ";
+            std::cin >> command;
+        }
+    }
+
+    void GeneratorKeyValueView::DisplayCommands() {
+        std::cout << red   << "---------------------------------" << reset << '\n';
+        std::cout << green << "Expected commands:" << reset << '\n';
+        std::cout << "> " << green << "GENERATE" << reset << std::endl;
+        std::cout << "> " << green << "EXIT" << reset << std::endl;
+        std::cout << red   << "---------------------------------" << reset << "\n\n";
+    }
+
     std::unique_ptr<IView> getView(int choice) {
         if (choice == 1)
             return std::make_unique<HashTableView>();
@@ -142,6 +190,9 @@ namespace ttl {
         if (choice == 3)
             return std::make_unique<CompareStoragesView>();
 
+        if (choice == 4)
+            return std::make_unique<GeneratorKeyValueView>();
+
         return nullptr;
     }
 
@@ -150,6 +201,7 @@ namespace ttl {
         std::cout << green << "> 1. " << reset << "unordered_map [key-value storage]" << '\n';
         std::cout << green << "> 2. " << reset << "map           [key-value storage]" << '\n';
         std::cout << green << "> 3. " << reset << "compare unordered_map & map" << '\n';
+        std::cout << green << "> 4. " << reset << "generate key-value file" << '\n';
         std::cout << red << "> " << reset;
 
         int choice;

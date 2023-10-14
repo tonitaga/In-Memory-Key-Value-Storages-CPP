@@ -54,7 +54,7 @@ namespace ttl {
             : key_(std::move(key)) {}
 
         void Execute(AssociativeContainer &storage) override {
-            if (storage.find(key_) == storage.end()) {
+            if (key_ == key_type{} or storage.find(key_) == storage.end()) {
                 std::cout << red << "> (null)" << reset << std::endl;
                 return;
             }
