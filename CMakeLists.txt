@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.26)
 project(Transactions_Library_CPP)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Werror")
+set(CMAKE_CXX_FLAGS "-std=c++17 -O3 -Wall -Werror")
 
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/src/model/command
@@ -15,6 +15,6 @@ include_directories(
 
 add_executable(Transactions_Library_CPP
         src/main.cc
-        src/model/student/student.cc
-        src/view/view.cc
-        src/model/storages/map/map.h)
+#        src/model/student/student.cc
+#        src/view/view.cc
+)

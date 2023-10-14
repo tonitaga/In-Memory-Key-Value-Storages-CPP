@@ -38,7 +38,7 @@ namespace ttl {
                 resize();
 
             size_type hashed_key = hash_(kv.first);
-            size_type hashed_key_mod = hashed_key % map_table_size::size(map_size_);
+            size_type hashed_key_mod = hashed_key % map_table_size::size(size_index_);
 
             auto &bucket = map_[hashed_key_mod];
             auto  table_it = map_.begin() + hashed_key_mod;
@@ -50,7 +50,7 @@ namespace ttl {
             size_++;
             update_alpha();
 
-            hashed_key_mod = hashed_key % map_table_size::size(map_size_);
+            hashed_key_mod = hashed_key % map_table_size::size(size_index_);
             map_[hashed_key_mod].emplace_front(kv);
 
             return std::make_pair(iterator(map_.begin() + hashed_key_mod, map_[hashed_key_mod].begin()), true);
@@ -61,7 +61,7 @@ namespace ttl {
                 resize();
 
             size_type hashed_key = hash_(kv.first);
-            size_type hashed_key_mod = hashed_key % map_table_size::size(map_size_);
+            size_type hashed_key_mod = hashed_key % map_table_size::size(size_index_);
 
             auto &bucket = map_[hashed_key_mod];
             auto  table_it = map_.begin() + hashed_key_mod;
@@ -73,7 +73,7 @@ namespace ttl {
             size_++;
             update_alpha();
 
-            hashed_key_mod = hashed_key % map_table_size::size(map_size_);
+            hashed_key_mod = hashed_key % map_table_size::size(size_index_);
             map_[hashed_key_mod].emplace_front(std::move(kv));
 
             return std::make_pair(iterator(map_.begin() + hashed_key_mod, map_[hashed_key_mod].begin()), true);
@@ -99,13 +99,13 @@ namespace ttl {
 
     public:
         [[nodiscard]] size_type size() const noexcept { return size_; }
-        [[nodiscard]] size_type capacity() const noexcept { return map_table_size::size(map_size_); }
+        [[nodiscard]] size_type capacity() const noexcept { return map_table_size::size(size_index_); }
 
         [[nodiscard]] bool empty() const noexcept { return size_ == size_type{}; }
 
     public:
         iterator find(const key_type &key) {
-            size_type hashed_key_mod = hash_(key) % map_table_size::size(map_size_);
+            size_type hashed_key_mod = hash_(key) % map_table_size::size(size_index_);
 
             auto &bucket = map_[hashed_key_mod];
             auto table_it = map_.begin() + hashed_key_mod;
@@ -118,7 +118,7 @@ namespace ttl {
         }
 
         iterator find(key_type &&key) {
-            size_type hashed_key_mod = hash_(std::move(key)) % map_table_size::size(map_size_);
+            size_type hashed_key_mod = hash_(std::move(key)) % map_table_size::size(size_index_);
 
             auto &bucket = map_[hashed_key_mod];
             auto table_it = map_.begin() + hashed_key_mod;
@@ -132,7 +132,7 @@ namespace ttl {
 
     public:
         bool erase(const key_type &key) {
-            size_type hashed_key_mod = hash_(key) % map_table_size::size(map_size_);
+            size_type hashed_key_mod = hash_(key) % map_table_size::size(size_index_);
 
             auto &bucket = map_[hashed_key_mod];
             if (bucket.empty())
@@ -152,7 +152,7 @@ namespace ttl {
         }
 
         bool erase(key_type &&key) {
-            size_type hashed_key_mod = hash_(std::move(key)) % map_table_size::size(map_size_);
+            size_type hashed_key_mod = hash_(std::move(key)) % map_table_size::size(size_index_);
 
             auto &bucket = map_[hashed_key_mod];
             if (bucket.empty())
@@ -174,17 +174,17 @@ namespace ttl {
         bool erase(iterator it) { return erase(it->first); }
 
     private:
-        size_type map_size_ = 0;
+        size_type size_index_ = 0;
         size_type size_ = 0;
 
         map_type map_;
         hash_type hash_;
 
-        [[nodiscard]] double get_alpha() const { return size_ / static_cast<double>(map_table_size::size(map_size_)); }
+        [[nodiscard]] double get_alpha() const { return size_ / static_cast<double>(map_table_size::size(size_index_)); }
         [[nodiscard]] double get_resize_alpha() const { return 0.75; }
 
         void resize() {
-            size_type new_map_size = map_table_size::size(++map_size_);
+            size_type new_map_size = map_table_size::size(++size_index_);
             map_type new_map(new_map_size);
 
             for (auto &&bucket : map_) {
