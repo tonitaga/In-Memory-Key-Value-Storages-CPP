@@ -3,7 +3,7 @@
 
 namespace ttl {
     template <typename MainIterator, typename BucketIterator>
-    class UnorderedMapNormalIterator {
+    class unordered_map_normal_iterator {
     public:
         using iterator_category = std::forward_iterator_tag;
         using value_type = typename MainIterator::value_type;
@@ -11,13 +11,13 @@ namespace ttl {
         using pointer = typename BucketIterator::pointer;
         using reference = typename BucketIterator::reference;
 
-        explicit UnorderedMapNormalIterator(MainIterator it) : iterator_main_(it) {
-            while (iterator_main_.operator*().empty())
+        explicit unordered_map_normal_iterator(MainIterator it) : iterator_main_(it) {
+            while (iterator_main_->empty())
                 ++iterator_main_;
-            iterator_bucket_ = iterator_main_.operator*().begin();
+            iterator_bucket_ = iterator_main_->begin();
         }
 
-        UnorderedMapNormalIterator(MainIterator main, BucketIterator bucket) : iterator_main_(main), iterator_bucket_(bucket) {};
+        unordered_map_normal_iterator(MainIterator main, BucketIterator bucket) : iterator_main_(main), iterator_bucket_(bucket) {};
 
         reference operator*() const {
             return *iterator_bucket_;
@@ -27,38 +27,30 @@ namespace ttl {
             return iterator_bucket_.operator->();
         }
 
-        UnorderedMapNormalIterator &operator++() {
-            if (iterator_bucket_ != iterator_main_.operator*().end()) {
-                ++iterator_bucket_;
-                if (iterator_bucket_ == iterator_main_.operator*().end()) {
-                    ++iterator_main_;
-                    while (iterator_main_.operator*().empty())
-                        ++iterator_main_;
-
-                    iterator_bucket_ = iterator_main_.operator*().begin();
-                }
+        unordered_map_normal_iterator &operator++() {
+            ++iterator_bucket_;
+            if (iterator_bucket_ != iterator_main_->end())
                 return *this;
-            }
 
             ++iterator_main_;
-            while (iterator_main_.operator*().empty())
+            while (iterator_main_->empty())
                 ++iterator_main_;
 
-            iterator_bucket_ = iterator_main_.operator*().begin();
+            iterator_bucket_ = iterator_main_->begin();
             return *this;
         }
 
-        UnorderedMapNormalIterator operator++(int) {
-            UnorderedMapNormalIterator temp = *this;
+        unordered_map_normal_iterator operator++(int) {
+            unordered_map_normal_iterator temp = *this;
             ++(*this);
             return temp;
         }
 
-        bool operator==(const UnorderedMapNormalIterator &other) const {
+        bool operator==(const unordered_map_normal_iterator &other) const {
             return iterator_main_ == other.iterator_main_;
         }
 
-        bool operator!=(const UnorderedMapNormalIterator &other) const {
+        bool operator!=(const unordered_map_normal_iterator &other) const {
             return iterator_main_ != other.iterator_main_;
         }
 

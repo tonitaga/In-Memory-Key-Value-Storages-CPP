@@ -43,7 +43,7 @@ namespace ttl {
         DisplayCommands();
 
         std::string line;
-        ttl::UnorderedMap<std::string, Student> map;
+        ttl::unordered_map<std::string, Student> map;
         while (true) {
             std::getline(std::cin, line, '\n');
 
@@ -78,12 +78,57 @@ namespace ttl {
         }
     }
 
+    void CompareStoragesView::Show() {
+        DisplayCommands();
+
+        enum CompareCommands {
+            kExit,
+            kSetCompare,
+            kGetCompare,
+            kExistsCompare,
+            kDelCompare,
+            kUpdateCompare,
+            kRenameCompare,
+            kFindCompare,
+        };
+
+        CompareCommands compare_command; int tmp;
+        std::cin >> tmp;
+        compare_command = static_cast<CompareCommands>(tmp);
+
+        ttl::unordered_map<std::string, Student> map_unordered;
+        ttl::Map<std::string, Student> map_rbtree;
+
+        while (compare_command != kExit) {
+            /* ... */
+            std::cin >> tmp;
+            compare_command = static_cast<CompareCommands>(tmp);
+        }
+    }
+
+    void CompareStoragesView::DisplayCommands() {
+        std::cout << red   << "---------------------------------" << reset << '\n';
+        std::cout << green << "Expected commands:" << reset << '\n';
+
+        std::cout << "1. " << green << "SET" << reset << "    <compare_times_count>" << std::endl;
+        std::cout << "2. " << green << "GET" << reset << "    <compare_times_count>" << std::endl;
+        std::cout << "3. " << green << "EXISTS" << reset << " <compare_times_count>" << std::endl;
+        std::cout << "4. " << green << "DEL" << reset << "    <compare_times_count>" << std::endl;
+        std::cout << "5. " << green << "UPDATE" << reset << " <compare_times_count>" << std::endl;
+        std::cout << "6. " << green << "RENAME" << reset << " <compare_times_count>" << std::endl;
+        std::cout << "7. " << green << "FIND" << reset << "   <compare_times_count>" << std::endl;
+        std::cout << "0. " << green << "EXIT" << reset << std::endl;
+    }
+
     std::unique_ptr<IView> getView(int choice) {
         if (choice == 1)
             return std::make_unique<HashTableView>();
 
         if (choice == 2)
             return std::make_unique<RedBlackTreeView>();
+
+        if (choice == 3)
+            return std::make_unique<CompareStoragesView>();
 
         return nullptr;
     }
@@ -92,6 +137,7 @@ namespace ttl {
         std::cout << "> Choose the storage type:" << '\n';
         std::cout << "> 1) Hash Table Storage" << '\n';
         std::cout << "> 2) Red Black Tree Storage" << '\n';
+        std::cout << "> 3) Compare Storages" << '\n';
         std::cout << "> ";
 
         int choice;

@@ -7,11 +7,12 @@
 namespace ttl {
     template <typename Key, typename Value>
     struct MapNode {
-        using value_type = std::pair<const Key, Value>;
         using key_type = Key;
         using mapped_type = Value;
+        using value_type = std::pair<key_type, mapped_type>;
+        using size_type = std::size_t;
 
-        std::pair<const Key, Value> key_value;
+        std::pair<key_type, mapped_type> key_value;
 
         bool is_red = false;
 
@@ -22,8 +23,9 @@ namespace ttl {
         std::size_t count = 0;
 
         MapNode() noexcept = default;
-        explicit MapNode(const std::pair<Key, Value> &kv) : key_value(kv) {};
-        explicit MapNode(std::pair<Key, Value> &&kv) noexcept : key_value(std::move(kv)) {};
+
+        explicit MapNode(const value_type &kv) : key_value(kv) {};
+        explicit MapNode(value_type &&kv) noexcept : key_value(std::move(kv)) {};
     };
 }
 

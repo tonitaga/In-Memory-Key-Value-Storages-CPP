@@ -6,244 +6,201 @@
 #include <forward_list>
 
 #include "unordered_map_normal_iterator.h"
+#include "unordered_map_size.h"
 
 namespace ttl {
     template <typename Key, typename Value, typename Hash = std::hash<Key>>
-    class UnorderedMap {
+    class unordered_map {
     public:
         using key_type = Key;
         using mapped_type = Value;
         using value_type = std::pair<const Key, Value>;
         using hash_type = Hash;
+        using size_type = std::size_t;
 
-        using iterator = UnorderedMapNormalIterator<
+        using iterator = unordered_map_normal_iterator<
                 typename std::vector<std::forward_list<value_type>>::iterator,
                 typename std::forward_list<value_type>::iterator>;
-        using const_iterator = UnorderedMapNormalIterator<
+        using const_iterator = unordered_map_normal_iterator<
                 typename std::vector<std::forward_list<value_type>>::const_iterator,
                 typename std::forward_list<value_type>::const_iterator>;
 
-        using size_type = std::size_t;
+
+    private:
+        using map_table_size = detail::unordered_map_size;
+        using map_type = std::vector<std::forward_list<value_type>>;
 
     public:
-        UnorderedMap() : map_(map_size_) {};
+        unordered_map() noexcept = default;
 
-        mapped_type &operator[](const key_type &key) {
-            if (((size_ + 1) / static_cast<double>(map_size_)) > resize_alpha_)
+        std::pair<iterator, bool> insert(const std::pair<key_type, mapped_type> &kv) {
+            if (map_.empty())
                 resize();
 
-            size_type key_hash = hash_(key) % map_size_;
+            size_type hashed_key = hash_(kv.first);
+            size_type hashed_key_mod = hashed_key % map_table_size::size(map_size_);
 
-            auto &bucket = map_[key_hash];
-            for (auto &kv : bucket) {
-                if (kv.first == key)
-                    return kv.second;
-            }
+            auto &bucket = map_[hashed_key_mod];
+            auto  table_it = map_.begin() + hashed_key_mod;
 
-            bucket.emplace_front(key, mapped_type());
+            for (auto b_it = bucket.begin(), b_end = bucket.end(); b_it != b_end; ++b_it)
+                if (b_it->first == kv.first)
+                    return std::make_pair(iterator(table_it, b_it), false);
+
             size_++;
             update_alpha();
-            return bucket.front().second;
+
+            hashed_key_mod = hashed_key % map_table_size::size(map_size_);
+            map_[hashed_key_mod].emplace_front(kv);
+
+            return std::make_pair(iterator(map_.begin() + hashed_key_mod, map_[hashed_key_mod].begin()), true);
+        }
+
+        std::pair<iterator, bool> insert(std::pair<key_type, mapped_type> &&kv) {
+            if (map_.empty())
+                resize();
+
+            size_type hashed_key = hash_(kv.first);
+            size_type hashed_key_mod = hashed_key % map_table_size::size(map_size_);
+
+            auto &bucket = map_[hashed_key_mod];
+            auto  table_it = map_.begin() + hashed_key_mod;
+
+            for (auto b_it = bucket.begin(), b_end = bucket.end(); b_it != b_end; ++b_it)
+                if (b_it->first == kv.first)
+                    return std::make_pair(iterator(table_it, b_it), false);
+
+            size_++;
+            update_alpha();
+
+            hashed_key_mod = hashed_key % map_table_size::size(map_size_);
+            map_[hashed_key_mod].emplace_front(std::move(kv));
+
+            return std::make_pair(iterator(map_.begin() + hashed_key_mod, map_[hashed_key_mod].begin()), true);
+        }
+
+        mapped_type &operator[](const key_type &key) {
+            auto it = insert(std::make_pair(key, mapped_type{})).first;
+            return it->second;
         }
 
         mapped_type &operator[](key_type &&key) {
-            if (((size_ + 1) / static_cast<double>(map_size_)) > resize_alpha_)
-                resize();
-
-            size_type key_hash = hash_(std::move(key)) % map_size_;
-
-            auto &bucket = map_[key_hash];
-            for (auto &kv : bucket) {
-                if (kv.first == key)
-                    return kv.second;
-            }
-
-            bucket.emplace_front(std::move(key), mapped_type());
-            size_++;
-            update_alpha();
-            return bucket.front().second;
+            auto it = insert(std::make_pair(std::move(key), mapped_type{})).first;
+            return it->second;
         }
 
-        bool insert(const std::pair<key_type, mapped_type> &kv) {
-            size_type key_hash = hash_(kv.first) % map_size_;
+    public:
 
-            auto &bucket = map_[key_hash];
-            for (const auto &[key, value] : bucket)
-                if (key == kv.first)
-                    return false;
+        iterator begin() noexcept { return iterator(map_.begin()); }
+        const_iterator begin() const noexcept { return const_iterator(map_.begin()); }
 
-            bucket.emplace_front(kv);
-            size_++;
-            update_alpha();
-            return true;
-        }
+        iterator end() noexcept { return iterator(map_.end()); }
+        const_iterator end() const noexcept { return const_iterator(map_.end()); }
 
-        bool insert(std::pair<key_type, mapped_type> &&kv) {
-            size_type key_hash = hash_(std::move(kv.first)) % map_size_;
+    public:
+        [[nodiscard]] size_type size() const noexcept { return size_; }
+        [[nodiscard]] size_type capacity() const noexcept { return map_table_size::size(map_size_); }
 
-            auto &bucket = map_[key_hash];
-            for (const auto &[key, value] : bucket)
-                if (key == std::move(kv.first))
-                    return false;
+        [[nodiscard]] bool empty() const noexcept { return size_ == size_type{}; }
 
-            bucket.emplace_front(std::move(kv));
-            size_++;
-            update_alpha();
-            return true;
-        }
-
-        [[nodiscard]] bool empty() const noexcept { return size_ == size_type{}; };
-
+    public:
         iterator find(const key_type &key) {
-            size_type key_hash = hash_(key) % map_size_;
+            size_type hashed_key_mod = hash_(key) % map_table_size::size(map_size_);
 
-            auto &bucket = map_[key_hash];
-            auto bucket_it = map_.begin() + key_hash;
+            auto &bucket = map_[hashed_key_mod];
+            auto table_it = map_.begin() + hashed_key_mod;
 
-            for (auto it = bucket.begin(); it != bucket.end(); ++it) {
-                if (it->first == key)
-                    return iterator(bucket_it, it);
-            }
+            for (auto b_it = bucket.begin(), b_end = bucket.end(); b_it != b_end; ++b_it)
+                if (b_it->first == key)
+                    return iterator(table_it, b_it);
 
             return end();
         }
 
         iterator find(key_type &&key) {
-            size_type key_hash = hash_(std::move(key)) % map_size_;
+            size_type hashed_key_mod = hash_(std::move(key)) % map_table_size::size(map_size_);
 
-            auto &bucket = map_[key_hash];
-            auto bucket_it = map_.begin() + key_hash;
+            auto &bucket = map_[hashed_key_mod];
+            auto table_it = map_.begin() + hashed_key_mod;
 
-            for (auto it = bucket.begin(); it != bucket.end(); ++it) {
-                if (it->first == key)
-                    return iterator(bucket_it, it);
-            }
-
-            return end();
-        }
-
-        const_iterator find(const key_type &key) const {
-            size_type key_hash = hash_(key) % map_size_;
-
-            const auto &bucket = map_[key_hash];
-            auto bucket_it = map_.begin() + key_hash;
-
-            for (auto it = bucket.begin(); it != bucket.end(); ++it) {
-                if (it->first == key)
-                    return const_iterator(bucket_it, it);
-            }
+            for (auto b_it = bucket.begin(), b_end = bucket.end(); b_it != b_end; ++b_it)
+                if (b_it->first == std::move(key))
+                    return iterator(table_it, b_it);
 
             return end();
         }
 
-        const_iterator find(key_type &&key) const {
-            size_type key_hash = hash_(std::move(key)) % map_size_;
+    public:
+        bool erase(const key_type &key) {
+            size_type hashed_key_mod = hash_(key) % map_table_size::size(map_size_);
 
-            const auto &bucket = map_[key_hash];
-            auto bucket_it = map_.begin() + key_hash;
-
-            for (auto it = bucket.begin(); it != bucket.end(); ++it) {
-                if (it->first == key)
-                    return const_iterator(bucket_it, it);
-            }
-
-            return end();
-        }
-
-        iterator end() noexcept {
-            return iterator(map_.end());
-        }
-
-        const_iterator end() const noexcept {
-            return const_iterator(map_.end());
-        }
-
-        iterator begin() noexcept {
-            return iterator(map_.begin());
-        }
-
-        const_iterator begin() const noexcept {
-            return const_iterator(map_.begin());
-        }
-
-        void erase(const key_type &key) {
-            size_type key_hash = hash_(key) % map_size_;
-            auto &bucket = map_[key_hash];
-
+            auto &bucket = map_[hashed_key_mod];
             if (bucket.empty())
-                return;
+                return false;
 
-            auto prev_it = bucket.before_begin();
-            for (auto it = bucket.begin(); it != bucket.end(); ++it) {
-                if (it->first == key) {
-                    bucket.erase_after(prev_it);
+            auto prev_b_it = bucket.before_begin();
+            for (auto b_it = bucket.begin(), b_end = bucket.end(); b_it != b_end; ++b_it) {
+                if (b_it->first == key) {
+                    bucket.erase_after(prev_b_it);
                     size_--;
-                    update_alpha();
-                    return;
+                    return true;
                 }
-                ++prev_it;
+                ++prev_b_it;
             }
+
+            return false;
         }
 
-        void erase(key_type &&key) {
-            size_type key_hash = hash_(std::move(key)) % map_size_;
-            auto &bucket = map_[key_hash];
+        bool erase(key_type &&key) {
+            size_type hashed_key_mod = hash_(std::move(key)) % map_table_size::size(map_size_);
 
+            auto &bucket = map_[hashed_key_mod];
             if (bucket.empty())
-                return;
+                return false;
 
-            auto prev_it = bucket.before_begin();
-            for (auto it = bucket.begin(); it != bucket.end(); ++it) {
-                if (it->first == key) {
-                    bucket.erase_after(prev_it);
+            auto prev_b_it = bucket.before_begin();
+            for (auto b_it = bucket.begin(), b_end = bucket.end(); b_it != b_end; ++b_it) {
+                if (b_it->first == std::move(key)) {
+                    bucket.erase_after(prev_b_it);
                     size_--;
-                    update_alpha();
-                    return;
+                    return true;
                 }
-                ++prev_it;
+                ++prev_b_it;
             }
+
+            return false;
         }
 
-        void erase(iterator it) {
-            erase(it->first);
-        }
-
-        [[nodiscard]] double alpha() const noexcept { return alpha_; }
-        [[nodiscard]] size_type size() const noexcept { return size_; }
+        bool erase(iterator it) { return erase(it->first); }
 
     private:
-        using map_type = std::vector<std::forward_list<value_type>>;
-
-        size_type map_size_ = 50;
+        size_type map_size_ = 0;
         size_type size_ = 0;
 
         map_type map_;
         hash_type hash_;
 
-        double alpha_ = size_ / static_cast<double>(map_size_);
-        const double resize_alpha_ = 0.75;
+        [[nodiscard]] double get_alpha() const { return size_ / static_cast<double>(map_table_size::size(map_size_)); }
+        [[nodiscard]] double get_resize_alpha() const { return 0.75; }
 
         void resize() {
-            size_type new_map_size = map_size_ * 2;
+            size_type new_map_size = map_table_size::size(++map_size_);
             map_type new_map(new_map_size);
 
-            for (auto &bucket : map_) {
-                for (const auto &kv : bucket) {
-                    size_type key_hash = hash_(kv.first) % new_map_size;
-                    new_map[key_hash].emplace_front(std::move(kv));
-                }
+            for (auto &&bucket : map_) {
+                if (bucket.empty())
+                    continue;
+
+                size_type key_hash = hash_(std::move(bucket.front().first)) % new_map_size;
+                new_map[key_hash] = std::move(bucket);
             }
 
-            map_size_ = new_map_size;
             map_ = std::move(new_map);
-            update_alpha();
         }
 
         void update_alpha() noexcept {
-            alpha_ = size_ / static_cast<double>(map_size_);
-            if (alpha_ > resize_alpha_)
+            if (get_alpha() >= get_resize_alpha())
                 resize();
-            alpha_ = size_ / static_cast<double>(map_size_);
         }
     };
 }

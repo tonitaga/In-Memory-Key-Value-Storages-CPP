@@ -12,7 +12,7 @@ namespace ttl {
         virtual void Show() = 0;
 
     protected:
-        void DisplayCommands();
+        virtual void DisplayCommands();
     };
 
     class HashTableView final : public IView {
@@ -29,6 +29,17 @@ namespace ttl {
 
     public:
         void Show() override;
+    };
+
+    class CompareStoragesView final : public IView {
+    public:
+        ~CompareStoragesView() override = default;
+
+    public:
+        void Show() override;
+
+    private:
+        void DisplayCommands() override;
     };
 
     std::unique_ptr<IView> getView(int choice);
