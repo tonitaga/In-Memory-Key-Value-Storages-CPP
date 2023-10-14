@@ -9,7 +9,7 @@
 
 void speed_test() {
     using namespace std::chrono;
-    int tests_count = 10;
+    int tests_count = 5;
 
     double ttl_ = 0, std_ = 0;
     for (int k = 0; k != tests_count; ++k) {
@@ -23,9 +23,6 @@ void speed_test() {
             }
             auto end = system_clock::now();
             ttl_ += duration_cast<nanoseconds>(end - begin).count() / 1'000'000.0;
-
-            for (auto &[key, value]: ttlmap)
-                std::cout << key << ' ' << value << '\n';
         }
         {
             std::unordered_map<int, int> stdmap;
@@ -38,9 +35,6 @@ void speed_test() {
 
             auto end = system_clock::now();
             std_ += duration_cast<nanoseconds>(end - begin).count() / 1'000'000.0;
-
-            for (auto &[key, value]: stdmap)
-                std::cout << key << ' ' << value << '\n';
         }
     }
 

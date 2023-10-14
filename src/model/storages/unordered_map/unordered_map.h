@@ -18,17 +18,18 @@ namespace ttl {
         using hash_type = Hash;
         using size_type = std::size_t;
 
-        using iterator = unordered_map_normal_iterator<
-                typename std::vector<std::forward_list<value_type>>::iterator,
-                typename std::forward_list<value_type>::iterator>;
-        using const_iterator = unordered_map_normal_iterator<
-                typename std::vector<std::forward_list<value_type>>::const_iterator,
-                typename std::forward_list<value_type>::const_iterator>;
-
-
     private:
         using map_table_size = detail::unordered_map_size;
         using map_type = std::vector<std::forward_list<value_type>>;
+
+        using table_iterator = typename std::vector<std::forward_list<value_type>>::iterator;
+        using table_const_iterator = typename std::vector<std::forward_list<value_type>>::const_iterator;
+        using bucket_iterator = typename std::forward_list<value_type>::iterator;
+        using bucket_const_iterator = typename std::forward_list<value_type>::const_iterator;
+
+    public:
+        using iterator = unordered_map_normal_iterator<table_iterator, bucket_iterator>;
+        using const_iterator = unordered_map_normal_iterator<table_const_iterator, bucket_const_iterator>;
 
     public:
         unordered_map() noexcept = default;

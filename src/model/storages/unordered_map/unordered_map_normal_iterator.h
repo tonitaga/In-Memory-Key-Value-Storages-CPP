@@ -2,41 +2,39 @@
 #define TRANSACTIONS_LIBRARY_CPP_UNORDERED_MAP_NORMAL_ITERATOR_H
 
 namespace ttl {
-    template <typename MainIterator, typename BucketIterator>
+    template <typename TableIterator, typename BucketIterator>
     class unordered_map_normal_iterator {
     public:
         using iterator_category = std::forward_iterator_tag;
-        using value_type = typename MainIterator::value_type;
-        using difference_type = typename MainIterator::difference_type;
         using pointer = typename BucketIterator::pointer;
         using reference = typename BucketIterator::reference;
 
-        explicit unordered_map_normal_iterator(MainIterator it) : iterator_main_(it) {
-            while (iterator_main_->empty())
-                ++iterator_main_;
-            iterator_bucket_ = iterator_main_->begin();
+        explicit unordered_map_normal_iterator(TableIterator it) : table_(it) {
+            while (table_->empty())
+                ++table_;
+            bucket_ = table_->begin();
         }
 
-        unordered_map_normal_iterator(MainIterator main, BucketIterator bucket) : iterator_main_(main), iterator_bucket_(bucket) {};
+        unordered_map_normal_iterator(TableIterator main, BucketIterator bucket) : table_(main), bucket_(bucket) {};
 
         reference operator*() const {
-            return *iterator_bucket_;
+            return *bucket_;
         }
 
         pointer operator->() const {
-            return iterator_bucket_.operator->();
+            return bucket_.operator->();
         }
 
         unordered_map_normal_iterator &operator++() {
-            ++iterator_bucket_;
-            if (iterator_bucket_ != iterator_main_->end())
+            ++bucket_;
+            if (bucket_ != table_->end())
                 return *this;
 
-            ++iterator_main_;
-            while (iterator_main_->empty())
-                ++iterator_main_;
+            ++table_;
+            while (table_->empty())
+                ++table_;
 
-            iterator_bucket_ = iterator_main_->begin();
+            bucket_ = table_->begin();
             return *this;
         }
 
@@ -47,16 +45,16 @@ namespace ttl {
         }
 
         bool operator==(const unordered_map_normal_iterator &other) const {
-            return iterator_main_ == other.iterator_main_;
+            return table_ == other.table_;
         }
 
         bool operator!=(const unordered_map_normal_iterator &other) const {
-            return iterator_main_ != other.iterator_main_;
+            return table_ != other.table_;
         }
 
     private:
-        MainIterator iterator_main_;
-        BucketIterator iterator_bucket_;
+        TableIterator table_;
+        BucketIterator bucket_;
     };
 }
 
