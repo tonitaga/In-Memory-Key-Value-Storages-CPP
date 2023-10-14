@@ -63,7 +63,7 @@ namespace ttl {
             mapped_type &mapped = storage[key_];
 
             if constexpr(std::is_same_v<mapped_type, Student>) {
-                auto time_delta = duration_cast<milliseconds>(system_clock::now() - mapped.life_begin).count();
+                auto time_delta = duration_cast<seconds>(system_clock::now() - mapped.life_begin).count();
                 if (mapped.time != -1 and time_delta > mapped.time * 1000) {
                     storage.erase(storage.find(key_));
                     std::cout << red << "> (null)" << reset << std::endl;
@@ -142,7 +142,7 @@ namespace ttl {
                 if (mapped_.time != -1)
                     mapped_.life_begin = system_clock::now();
 
-            storage[key_] = std::move(mapped_);
+            storage[key_] = mapped_;
             std::cout << green << "> OK" << reset << std::endl;
         }
 
@@ -184,9 +184,9 @@ namespace ttl {
                 return;
             }
 
-            mapped_type saved = std::move(storage[key1_]);
+            mapped_type saved = storage[key1_];
             storage.erase(storage.find(key1_));
-            storage.insert({std::move(key2_), std::move(saved)});
+            storage.insert({key2_, saved});
             std::cout << green << "> OK" << reset << std::endl;
         }
 
@@ -254,7 +254,7 @@ namespace ttl {
             using namespace std::chrono;
             for (const auto &[key, mapped] : storage) {
                 if constexpr (std::is_same_v<mapped_type, Student>)
-                    if (mapped.time != -1 and duration_cast<milliseconds>(system_clock::now() - mapped.life_begin).count() > mapped.time * 1000)
+                    if (mapped.time != -1 and duration_cast<seconds>(system_clock::now() - mapped.life_begin).count() > mapped.time * 1000)
                         continue;
 
                 if (mapped == mapped_) {
@@ -301,7 +301,8 @@ namespace ttl {
         void Execute(AssociativeContainer &storage) override {
             std::ifstream file(path_);
             if (!file.is_open()) {
-                std::cout << red << "> Can't create or open the file by path '" << path_ << "'" << reset << std::endl;
+                std::cout << red << "> Can't create or open the file by path '"
+                          << path_ << "'" << reset << std::endl;
                 return;
             }
 
@@ -330,7 +331,7 @@ namespace ttl {
                     if (mapped.time != -1)
                         mapped.life_begin = system_clock::now();
 
-                storage[std::move(key)] = std::move(mapped);
+                storage[key] = std::move(mapped);
                 ++read_count;
             }
 

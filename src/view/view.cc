@@ -5,6 +5,10 @@
 
 #include "map.h"
 #include "unordered_map.h"
+#include "functions.h"
+
+#include <map>
+#include <unordered_map>
 
 namespace ttl {
     void IView::DisplayCommands() {
@@ -81,28 +85,35 @@ namespace ttl {
     void CompareStoragesView::Show() {
         DisplayCommands();
 
-        enum CompareCommands {
-            kExit,
-            kSetCompare,
-            kGetCompare,
-            kExistsCompare,
-            kDelCompare,
-            kUpdateCompare,
-            kRenameCompare,
-            kFindCompare,
-        };
+        int choice, tests_count;
 
-        CompareCommands compare_command; int tmp;
-        std::cin >> tmp;
-        compare_command = static_cast<CompareCommands>(tmp);
+        std::cout << green << "Enter number from list\n> " << reset;
+        std::cin >> choice;
+        while (choice != 0) {
+            std::cout << green << "Enter iterations count [0 - 1'000'000]\n> " << reset;
+            std::cin >> tests_count;
 
-        ttl::unordered_map<std::string, Student> map_unordered;
-        ttl::map<std::string, Student> map_rbtree;
+            if (tests_count > 1000000) {
+                std::cout << red << "Tests count is too big!\n" << green << "Choose less or equal 1'000'000" << reset << "\n\n";
+                std::cout << green << "Enter number from list\n> " << reset;
+                std::cin >> choice;
+                continue;
+            }
 
-        while (compare_command != kExit) {
-            /* ... */
-            std::cin >> tmp;
-            compare_command = static_cast<CompareCommands>(tmp);
+            double time_ttl_unordered = Functions::Execute(choice, tests_count, ttl::unordered_map<int, int>{});
+            double time_std_unordered = Functions::Execute(choice, tests_count, std::unordered_map<int, int>{});
+            double time_ttl_map = Functions::Execute(choice, tests_count, ttl::map<int, int>{});
+            double time_std_map = Functions::Execute(choice, tests_count, std::map<int, int>{});
+
+            std::cout << std::endl;
+            std::cout << red << "ttl::unordered_map (ms): " << reset << time_ttl_unordered << std::endl;
+            std::cout << red << "std::unordered_map (ms): " << reset << time_std_unordered << std::endl;
+            std::cout << red << "ttl::map (ms):           " << reset << time_ttl_map << std::endl;
+            std::cout << red << "std::map (ms):           " << reset << time_std_map << std::endl;
+            std::cout << std::endl;
+
+            std::cout << green << "Enter number from list\n> " << reset;
+            std::cin >> choice;
         }
     }
 
@@ -118,6 +129,7 @@ namespace ttl {
         std::cout << "6. " << green << "RENAME" << reset << " <compare_times_count>" << std::endl;
         std::cout << "7. " << green << "FIND" << reset << "   <compare_times_count>" << std::endl;
         std::cout << "0. " << green << "EXIT" << reset << std::endl;
+        std::cout << red   << "---------------------------------" << reset << "\n\n";
     }
 
     std::unique_ptr<IView> getView(int choice) {
@@ -134,11 +146,11 @@ namespace ttl {
     }
 
     int getStorageChoiceInput() {
-        std::cout << "> Choose the storage type:" << '\n';
-        std::cout << "> 1) Hash Table Storage" << '\n';
-        std::cout << "> 2) Red Black Tree Storage" << '\n';
-        std::cout << "> 3) Compare Storages" << '\n';
-        std::cout << "> ";
+        std::cout << green << "> " << reset << "Choose interactive version:" << '\n';
+        std::cout << green << "> 1. " << reset << "unordered_map [key-value storage]" << '\n';
+        std::cout << green << "> 2. " << reset << "map           [key-value storage]" << '\n';
+        std::cout << green << "> 3. " << reset << "compare unordered_map & map" << '\n';
+        std::cout << red << "> " << reset;
 
         int choice;
         std::cin >> choice;

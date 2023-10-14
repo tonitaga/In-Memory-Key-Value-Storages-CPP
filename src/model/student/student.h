@@ -23,6 +23,8 @@ namespace ttl {
             city = rhs.city == "-" ? city : rhs.city;
             coins = rhs.coins == -1 ? coins : rhs.coins;
             time = rhs.time == -1 ? time : rhs.time;
+            if (time != -1)
+                life_begin = rhs.life_begin;
 
             return *this;
         }

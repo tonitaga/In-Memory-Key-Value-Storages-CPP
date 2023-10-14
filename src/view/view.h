@@ -2,6 +2,7 @@
 #define TRANSACTIONS_LIBRARY_CPP_VIEW_H
 
 #include <memory>
+#include <functional>
 
 namespace ttl {
     class IView {

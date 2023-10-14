@@ -91,8 +91,18 @@ namespace ttl {
 
     public:
 
-        iterator begin() noexcept { return iterator(map_.begin()); }
-        const_iterator begin() const noexcept { return const_iterator(map_.begin()); }
+        iterator begin() noexcept {
+            for (auto tit = map_.begin(), tend = map_.end(); tit != tend; ++tit)
+                for (auto bit = tit->begin(), bend = tit->end(); bit != bend; ++bit)
+                    return iterator(tit, bit);
+            return end();
+        }
+        const_iterator begin() const noexcept {
+            for (auto tit = map_.cbegin(), tend = map_.cend(); tit != tend; ++tit)
+                for (auto bit = tit->cbegin(), bend = tit->cend(); bit != bend; ++bit)
+                    return const_iterator(tit, bit);
+            return end();
+        }
 
         iterator end() noexcept { return iterator(map_.end()); }
         const_iterator end() const noexcept { return const_iterator(map_.end()); }

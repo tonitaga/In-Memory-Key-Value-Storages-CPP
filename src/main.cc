@@ -1,54 +1,48 @@
 #include "view.h"
+
 #include "map.h"
 #include "student.h"
+#include "unordered_map.h"
 
-//void speed_test() {
-//    using namespace std::chrono;
-//    int tests_count = 5;
-//
-//    double ttl_ = 0, std_ = 0;
-//    for (int k = 0; k != tests_count; ++k) {
-//        {
-//            ttl::unordered_map<int, int> ttlmap;
-//            auto begin = system_clock::now();
-//            for (int i = 0; i != 1000000; i++) {
-//                ttlmap.insert({i, i});
-//                if (ttlmap.find(i) != ttlmap.end())
-//                    ttlmap.erase(ttlmap.find(i)->first);
-//            }
-//            auto end = system_clock::now();
-//            ttl_ += duration_cast<nanoseconds>(end - begin).count() / 1'000'000.0;
-//        }
-//        {
-//            std::unordered_map<int, int> stdmap;
-//            auto begin = system_clock::now();
-//            for (int i = 0; i != 1000000; i++) {
-//                stdmap.insert({i, i});
-//                if (stdmap.find(i) != stdmap.end())
-//                    stdmap.erase(stdmap.find(i)->first);
-//            }
-//
-//            auto end = system_clock::now();
-//            std_ += duration_cast<nanoseconds>(end - begin).count() / 1'000'000.0;
-//        }
-//    }
-//
-//    std::cout << "ttl::unordered_map: " << ttl_ / tests_count << '\n';
-//    std::cout << "std::unordered_map: " << std_ / tests_count << '\n';
-//}
-
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
 int main() {
-    using namespace ttl;
+//    using namespace ttl;
+//
+//    auto view = getView(
+//            getStorageChoiceInput());
+//
+//    if (view) view->Show();
 
-    auto view = getView(
-            getStorageChoiceInput());
+    ttl::unordered_map<std::string, ttl::Student> map;
+    std::string path = R"(D:\Github\Console\In-Memory-Key-Value-Storages-CPP\cmake-build-debug\data.dat)";
+    std::ifstream fin(path);
+    if (!fin.is_open()) {
+        std::cout << "Open error" << std::endl;
+        return EXIT_FAILURE;
+    }
 
-    if (view) view->Show();
+    std::string line;
+    std::stringstream ss;
+    while (std::getline(fin, line)) {
+        ss.clear();
+        ss.str(line);
 
-//    speed_test();
-    ttl::map<std::string, ttl::Student> map;
-    map["key"] = {};
+        ttl::Student s;
+        std::string key;
+
+        ss >> key >> s;
+        std::cout << key << ' ' << s << '\n';
+        map.insert({key, s});
+    }
+
+    std::cout << map.size() << std::endl;
+    fin.close();
+
+    for (const auto &[key, value] : map)
+        std::cout << key << ' ' <<  value << '\n';
 
     return 0;
 }
