@@ -36,8 +36,15 @@ namespace ttl {
         }
 
         map &operator=(const map &other) {
-            map tmp(other);
-            *this = std::move(tmp);
+            if (this == &other)
+                return *this;
+
+            if (!empty())
+                clear_recursive(root_);
+
+            for (const auto &kv : other)
+                insert(kv);
+
             return *this;
         }
 
@@ -48,13 +55,14 @@ namespace ttl {
         }
 
         map &operator=(map &&other) noexcept {
-            null_ = other.null_;
-            root_ = other.root_;
-            compare_ = other.compare_;
-            size_ = other.size_;
-            other.null_ = nullptr;
-            other.root_ = nullptr;
-            other.size_ = size_type{};
+            if (this == &other)
+                return *this;
+
+            std::swap(null_, other.null_);
+            std::swap(root_, other.root_);
+            std::swap(compare_,other.compare_);
+            std::swap(size_, other.size_);
+
             return *this;
         }
 
