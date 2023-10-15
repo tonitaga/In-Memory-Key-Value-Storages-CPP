@@ -5,7 +5,7 @@
 ---
 To install the In-Memory-Key-Value-Storages-CPP, follow these steps:
 
-1. Clone or download the matrix library repository.
+1. Clone or download repository.
 
 ```shell
 git clone https://github.com/tonitaga/In-Memory-Key-Value-Storages-CPP.git
