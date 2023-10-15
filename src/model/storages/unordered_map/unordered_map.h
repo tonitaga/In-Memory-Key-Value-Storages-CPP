@@ -183,6 +183,22 @@ namespace ttl {
 
         bool erase(iterator it) { return erase(it->first); }
 
+        void reserve(std::size_t items_count) {
+            if (!empty())
+                return;
+
+            const auto &sizes = map_table_size::sizes;
+            std::size_t index = 0;
+            for (const auto &size : sizes) {
+                if (static_cast<double>(items_count) < map_table_size::kResizeAlpha * size) {
+                    map_.resize(size);
+                    size_index_ = index;
+                    return;
+                }
+                ++index;
+            }
+        }
+
     private:
         size_type size_index_ = 0;
         size_type size_ = 0;
@@ -191,7 +207,6 @@ namespace ttl {
         hash_type hash_;
 
         [[nodiscard]] double get_alpha() const { return size_ / static_cast<double>(map_table_size::size(size_index_)); }
-        [[nodiscard]] double get_resize_alpha() const { return 4; }
 
         void resize() {
             size_type new_map_size = map_table_size::size(++size_index_);
@@ -208,7 +223,7 @@ namespace ttl {
         }
 
         void update_alpha() noexcept {
-            if (get_alpha() >= get_resize_alpha())
+            if (get_alpha() >= map_table_size::kResizeAlpha)
                 resize();
         }
     };

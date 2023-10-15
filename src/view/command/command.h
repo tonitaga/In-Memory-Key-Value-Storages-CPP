@@ -31,6 +31,11 @@ namespace ttl {
             : key_(std::move(key)), mapped_(std::move(mapped)) {}
 
         void Execute(AssociativeContainer &storage) override {
+            if (storage.find(key_) != storage.end()) {
+                std::cout << red << "> key '" << key_ << "' already exists" << reset << std::endl;
+                return;
+            }
+
             if constexpr(std::is_same_v<mapped_type, Student>)
                 if (mapped_.time != -1)
                     mapped_.life_begin = std::chrono::system_clock::now();
@@ -113,6 +118,7 @@ namespace ttl {
                 std::cout << red << "> false" << reset << std::endl;
                 return;
             }
+
             storage.erase(storage.find(key_));
             std::cout << green << "> true" << reset << std::endl;
         }
@@ -182,6 +188,12 @@ namespace ttl {
         void Execute(AssociativeContainer &storage) override {
             if (storage.find(key1_) == storage.end()) {
                 std::cout << red << "> key '" << key1_ << "' doesn't exists in storage" << reset << std::endl;
+                return;
+            }
+
+            if (storage.find(key2_) != storage.end()) {
+                std::cout << red << "> can't rename this key to '" << key2_ << "' because '" <<
+                                    key2_ << "' exists" << reset << std::endl;
                 return;
             }
 

@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-std=c++17 -O3 -Wall -Werror")
 
 include_directories(
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/model/command
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/view/command
         ${CMAKE_CURRENT_SOURCE_DIR}/src/model/student
         ${CMAKE_CURRENT_SOURCE_DIR}/src/extern
         ${CMAKE_CURRENT_SOURCE_DIR}/src/view

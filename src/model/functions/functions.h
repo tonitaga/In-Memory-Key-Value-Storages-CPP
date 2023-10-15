@@ -7,30 +7,36 @@ namespace ttl {
     class Functions {
     public:
         template<typename AssociativeContainer>
-        static double Execute(int choice, int tests_count, AssociativeContainer storage) {
+        static double Execute(std::size_t choice, std::size_t tests_count, AssociativeContainer storage) {
+            using key_type = typename AssociativeContainer::key_type;
+            using mapped_type = typename AssociativeContainer::mapped_type;
+
+            if constexpr (std::is_same_v<AssociativeContainer, unordered_map<key_type, mapped_type>>)
+                storage.reserve(tests_count);
+
             if (choice == 1) { // SET
                 return getTime([&]() {
-                    for (int i = 0; i != tests_count; ++i)
+                    for (std::size_t i = 0; i != tests_count; ++i)
                         storage.insert({i, i});
                 });
             }
 
             if (choice == 2) { // GET
-                for (int i = 0; i != tests_count; ++i)
+                for (std::size_t i = 0; i != tests_count; ++i)
                     storage.insert({i, i});
 
                 return getTime([&]() {
-                    for (int i = 0; i != tests_count; ++i)
+                    for (std::size_t i = 0; i != tests_count; ++i)
                         storage[i];
                 });
             }
 
             if (choice == 3) { // EXISTS
-                for (int i = 0; i != tests_count; ++i)
+                for (std::size_t i = 0; i != tests_count; ++i)
                     storage.insert({i, i});
 
                 return getTime([&]() {
-                    for (int i = 0; i != tests_count; ++i) {
+                    for (std::size_t i = 0; i != tests_count; ++i) {
                         if (storage.find(i) == storage.end())
                             storage[i] = i;
                     }
@@ -38,31 +44,31 @@ namespace ttl {
             }
 
             if (choice == 4) { // DEL
-                for (int i = 0; i != tests_count; ++i)
+                for (std::size_t i = 0; i != tests_count; ++i)
                     storage.insert({i, i});
 
                 return getTime([&]() {
-                    for (int i = 0; i != tests_count; ++i)
+                    for (std::size_t i = 0; i != tests_count; ++i)
                         storage.erase(storage.find(i));
                 });
             }
 
             if (choice == 5) { // UPDATE
-                for (int i = 0; i != tests_count; ++i)
+                for (std::size_t i = 0; i != tests_count; ++i)
                     storage.insert({i, i});
 
                 return getTime([&]() {
-                    for (int i = 0; i != tests_count; ++i)
+                    for (std::size_t i = 0; i != tests_count; ++i)
                         storage[i] = i;
                 });
             }
 
             if (choice == 6) { // RENAME
-                for (int i = 0; i != tests_count; ++i)
+                for (std::size_t i = 0; i != tests_count; ++i)
                     storage.insert({i, i});
 
                 return getTime([&]() {
-                    for (int i = 0; i != tests_count; ++i) {
+                    for (std::size_t i = 0; i != tests_count; ++i) {
                         if (storage.find(i) == storage.end())
                             continue;
 
@@ -74,11 +80,11 @@ namespace ttl {
             }
 
             if (choice == 7) { // EXISTS
-                for (int i = 0; i != tests_count; ++i)
+                for (std::size_t i = 0; i != tests_count; ++i)
                     storage.insert({i, i});
 
                 return getTime([&]() {
-                    for (int i = 0; i != tests_count; ++i) {
+                    for (std::size_t i = 0; i != tests_count; ++i) {
                         if (storage.find(i) == storage.end())
                             storage[i] = i;
                     }

@@ -7,6 +7,7 @@
 namespace ttl::detail {
     struct unordered_map_size {
         static const std::array<unsigned long long, 31> sizes;
+        static const double kResizeAlpha;
 
         static std::size_t size(std::size_t index) {
             return sizes[index];
@@ -21,6 +22,8 @@ namespace ttl::detail {
             8388604ull, 16777212ull, 33554428ull, 67108860ull, 134217724ull,
             268435452ull, 536870908ull, 1073741820ull, 2147483640ull, std::numeric_limits<unsigned long long>::max()
     };
+
+    inline constexpr double unordered_map_size::kResizeAlpha = 0.75;
 
     /*
      *

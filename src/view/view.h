@@ -12,6 +12,8 @@ namespace ttl {
     public:
         virtual void Show() = 0;
 
+        static std::unique_ptr<IView> getView();
+
     protected:
         virtual void DisplayCommands();
     };
