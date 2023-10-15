@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 
 
-TEST(map, EmptyConstructor) {
+TEST(map, default_constructor) {
     ttl::map<int, int> map;
 
     ASSERT_TRUE(map.size() == 0);

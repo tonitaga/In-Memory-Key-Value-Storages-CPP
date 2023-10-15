@@ -1,0 +1,36 @@
+TRANSACTION_PROJECT_NAME="Transactions_CPP"
+TRANSACTION_TEST_BUILD_NAME="Transactions_CPP_TEST"
+
+TRANSACTION_PROJECT_BUILD_DIR=${TRANSACTION_PROJECT_NAME}
+TRANSACTION_TEST_BUILD_DIR=${TRANSACTION_TEST_BUILD_NAME}
+
+TRANSACTIONS_TESTS_LOCATION_DIR="./src/tests"
+
+all: tests clean_tests build
+
+build:
+	@cmake -S . -B ${TRANSACTION_PROJECT_BUILD_DIR}
+	@cmake --build ${TRANSACTION_PROJECT_BUILD_DIR}
+
+run:
+	@${TRANSACTION_PROJECT_BUILD_DIR}/${TRANSACTION_PROJECT_NAME}
+
+tests:
+	@cmake -S ${TRANSACTIONS_TESTS_LOCATION_DIR} -B ${TRANSACTION_TEST_BUILD_DIR}
+	@cmake --build ${TRANSACTION_TEST_BUILD_DIR}
+	@${TRANSACTION_TEST_BUILD_DIR}/${TRANSACTION_TEST_BUILD_NAME}
+
+leaks: tests
+	@valgrind --tool=memcheck ${TRANSACTION_TEST_BUILD_DIR}/${TRANSACTION_TEST_BUILD_NAME}
+
+hash_table.a: build
+
+self_balancing_binary_search_tree.a: build
+
+clean: clean_tests clean_transactions
+
+clean_tests:
+	@rm -rf ${TRANSACTION_TEST_BUILD_DIR}
+
+clean_transactions:
+	@rm -rf ${TRANSACTION_PROJECT_BUILD_DIR}

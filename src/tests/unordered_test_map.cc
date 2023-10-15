@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 
 
-TEST(unordered_map, EmptyConstructor) {
+TEST(unordered_map, default_constructor) {
     ttl::unordered_map<int, int> map;
 
     ASSERT_TRUE(map.size() == 0);

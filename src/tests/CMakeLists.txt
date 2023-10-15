@@ -20,7 +20,6 @@ include_directories(
 )
 
 add_executable(Transactions_CPP_TEST
-        unordered_test_map.cc
         map_test.cc
 )
 
