@@ -11,8 +11,8 @@ namespace ttl {
         using node_type = Node;
         using node_pointer = node_type *;
         using value_type = typename Node::value_type;
-        using reference = value_type &;
-        using pointer = value_type *;
+        using reference = std::conditional_t<std::is_const_v<node_type>, typename Node::const_reference, typename Node::reference>;
+        using pointer = std::conditional_t<std::is_const_v<node_type>, typename Node::const_pointer, typename Node::pointer>;
 
     public:
         map_normal_iterator(node_pointer current, node_pointer null, node_pointer root) noexcept
@@ -25,6 +25,7 @@ namespace ttl {
 
     public:
         reference operator*() { return current_->kv; }
+
         pointer operator->() { return &(current_->kv); }
 
         map_normal_iterator &operator++() {

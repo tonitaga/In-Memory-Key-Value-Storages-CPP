@@ -16,6 +16,10 @@ namespace ttl::detail {
         using key_type = Key;
         using mapped_type = Value;
         using value_type = std::pair<key_type, mapped_type>;
+        using reference = value_type &;
+        using const_reference = const value_type &;
+        using pointer = value_type *;
+        using const_pointer = const value_type *;
         using size_type = std::size_t;
 
         std::pair<key_type, mapped_type> kv;

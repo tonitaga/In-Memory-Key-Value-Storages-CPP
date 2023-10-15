@@ -61,8 +61,10 @@ std::istream &operator>>(std::istream &in, ttl::Student &rhs) {
 std::ostream &operator<<(std::ostream &out, const ttl::Student &rhs) {
     using namespace std::chrono;
     out << rhs.surname << ' ' << rhs.name << ' ' << rhs.year << ' ' << rhs.city << ' ' << rhs.coins;
-    if (rhs.time == -1)
+    if (rhs.time == -1) {
+        out << " - ";
         return out;
+    }
 
     out << " EX ";
     auto delta = duration_cast<seconds>(system_clock::now() - rhs.life_begin).count();

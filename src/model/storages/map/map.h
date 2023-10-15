@@ -75,7 +75,13 @@ namespace ttl {
             return iterator(min, null_, root_);
         }
 
+        const_iterator begin() const noexcept {
+            node_pointer min = min_node(root_);
+            return const_iterator(min, null_, root_);
+        }
+
         iterator end() noexcept { return iterator(null_, null_, root_); }
+        const_iterator end() const noexcept { return const_iterator(null_, null_, root_); }
 
     public:
         std::pair<iterator, bool> insert(const value_type &kv) {
@@ -456,7 +462,7 @@ namespace ttl {
             node->parent = x;
         }
 
-        node_pointer min_node(node_pointer n) {
+        node_pointer min_node(node_pointer n) const {
             node_pointer node = n;
             if (is_null(root_))
                 return node;
@@ -467,7 +473,7 @@ namespace ttl {
             return node;
         }
 
-        node_pointer max_node(node_pointer n) {
+        node_pointer max_node(node_pointer n) const {
             node_pointer node = n;
             if (is_null(root_))
                 return node;

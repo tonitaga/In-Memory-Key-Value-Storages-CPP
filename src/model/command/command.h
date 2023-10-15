@@ -163,8 +163,9 @@ namespace ttl {
                 return;
             }
 
+            int count = 0;
             for (const auto &[key, mapped] : storage)
-                std::cout << green << "> " << key << std::endl;
+                std::cout << green << ++count << ") " << key << std::endl;
             std::cout << reset;
         }
     };
@@ -283,8 +284,11 @@ namespace ttl {
                 return;
             }
 
+            if constexpr (std::is_same_v<mapped_type, Student>)
+                std::cout << "> Key Surname Name Year City Coins Life Time" << '\n';
+
             for (const auto &[key, mapped] : storage)
-                std::cout << green << "> " << mapped << std::endl;
+                std::cout << green << "> " << key << ' ' << mapped << std::endl;
             std::cout << reset;
         }
     };
