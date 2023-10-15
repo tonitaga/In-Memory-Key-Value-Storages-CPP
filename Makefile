@@ -6,6 +6,8 @@ TRANSACTION_TEST_BUILD_DIR=${TRANSACTION_TEST_BUILD_NAME}
 
 TRANSACTIONS_TESTS_LOCATION_DIR="./src/tests"
 
+PLATFORM=$(shell uname -o)
+
 all: tests clean_tests build
 
 build:
@@ -21,7 +23,11 @@ tests:
 	@${TRANSACTION_TEST_BUILD_DIR}/${TRANSACTION_TEST_BUILD_NAME}
 
 leaks: tests
+ifeq ($(PLATFORM),Darwin)
 	@valgrind --tool=memcheck ${TRANSACTION_TEST_BUILD_DIR}/${TRANSACTION_TEST_BUILD_NAME}
+else
+	@leaks --atExit -- ${TRANSACTION_TEST_BUILD_DIR}/${TRANSACTION_TEST_BUILD_NAME}
+endif
 
 hash_table.a: build
 

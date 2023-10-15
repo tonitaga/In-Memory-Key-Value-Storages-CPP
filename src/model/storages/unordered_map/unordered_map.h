@@ -34,8 +34,7 @@ namespace ttl {
         unordered_map() noexcept = default;
 
         std::pair<iterator, bool> insert(const std::pair<key_type, mapped_type> &kv) {
-            if (map_.empty())
-                resize();
+            if (map_.empty()) resize();
 
             size_type hashed_key = hash_(kv.first);
             size_type hashed_key_mod = hashed_key % map_table_size::size(size_index_);
@@ -57,8 +56,7 @@ namespace ttl {
         }
 
         std::pair<iterator, bool> insert(std::pair<key_type, mapped_type> &&kv) {
-            if (map_.empty())
-                resize();
+            if (map_.empty()) resize();
 
             size_type hashed_key = hash_(kv.first);
             size_type hashed_key_mod = hashed_key % map_table_size::size(size_index_);
@@ -115,6 +113,8 @@ namespace ttl {
 
     public:
         iterator find(const key_type &key) {
+            if (empty()) return end();
+
             size_type hashed_key_mod = hash_(key) % map_table_size::size(size_index_);
 
             auto &bucket = map_[hashed_key_mod];
@@ -128,6 +128,8 @@ namespace ttl {
         }
 
         iterator find(key_type &&key) {
+            if (empty()) return end();
+
             size_type hashed_key_mod = hash_(std::move(key)) % map_table_size::size(size_index_);
 
             auto &bucket = map_[hashed_key_mod];
@@ -142,6 +144,8 @@ namespace ttl {
 
     public:
         bool erase(const key_type &key) {
+            if (empty()) return false;
+
             size_type hashed_key_mod = hash_(key) % map_table_size::size(size_index_);
 
             auto &bucket = map_[hashed_key_mod];
@@ -162,6 +166,8 @@ namespace ttl {
         }
 
         bool erase(key_type &&key) {
+            if (empty()) return false;
+
             size_type hashed_key_mod = hash_(std::move(key)) % map_table_size::size(size_index_);
 
             auto &bucket = map_[hashed_key_mod];
