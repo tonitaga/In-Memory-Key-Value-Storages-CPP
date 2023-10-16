@@ -21,6 +21,7 @@ include_directories(
 
 add_executable(Transactions_CPP_TEST
         map_test.cc
+        unordered_map_test.cc
 )
 
 target_link_libraries(Transactions_CPP_TEST gtest_main)
